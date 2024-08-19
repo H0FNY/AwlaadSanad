@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "480923533607",
+    "project_id": "awlaadsanaad",
+    "storage_bucket": "awlaadsanaad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480923533607:android:c40f3a7074cab1b11e2902",
+        "android_client_info": {
+          "package_name": "com.example.awladsanaad_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtvpc-AzE0oc2NOI1pFMcyKdEQn8m6tv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
