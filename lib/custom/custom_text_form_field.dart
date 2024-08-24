@@ -49,7 +49,7 @@ Widget CustomTextFormField({
           borderRadius: BorderRadius.circular(20),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.transparent),
+          borderSide: const BorderSide(color: mainColor),
           borderRadius: BorderRadius.circular(20),
         ),
         errorBorder: OutlineInputBorder(

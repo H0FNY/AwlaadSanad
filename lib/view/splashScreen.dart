@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:awladsanaad_2/custom/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'Home.dart';
+import '../custom/data.dart';
+import 'home/Home.dart';
 import 'auth/logIn.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -43,9 +45,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   Future<void> _checkValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? savedValue = prefs.getString('UserName');
+    String? savedValue = prefs.getString('token');
+
 
     if (savedValue != null && savedValue.isNotEmpty) {
+      Userdata = JwtDecoder.decode(savedValue);
+      Userdata["token"]= savedValue;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Home()),
@@ -62,6 +67,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     double widthScreen = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: whiteColor,
       body: Center(
         child: FadeTransition(
           opacity: _animation,

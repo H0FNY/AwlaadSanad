@@ -1,10 +1,10 @@
 import 'dart:convert';
-
+import 'package:awladsanaad_2/custom/data.dart';
+import 'package:awladsanaad_2/model/user_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:jwt_decoder/jwt_decoder.dart';
 
-class attendetypeService {
-  String BaseUrl = 'http://welads.runasp.net/api/';
+class AttendeTypeService {
+  String BaseUrl = 'http://welads.runasp.net/classtrack/';
 
   Future getAllAttendenceType() async {
     Uri url = Uri.parse("${BaseUrl}AttendenceType/getall");
@@ -42,22 +42,18 @@ class attendetypeService {
     };
 
     try {
-      // Send the POST request
       http.Response response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(requestBody), // Convert your data to JSON format
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 200) {
-        // Request was successful, you can handle the response here
         print('Response: ${response.body}');
       } else {
-        // Handle server errors
         print('Failed with status code: ${response.statusCode}');
       }
     } catch (e) {
-      // Handle connection or other errors
       print('Error: $e');
     }
   }
@@ -102,92 +98,99 @@ class attendetypeService {
   }
 }
 
-class groupService {
-  String BaseUrl = 'http://welads.runasp.net/api/';
+class GroupService {
+  String BaseUrl = 'http://welads.runasp.net/classtrack';
 
-  Future getAllGroups() async {
-    Uri url = Uri.parse("${BaseUrl}Group/viewgroups");
+  Future<http.Response> getAllGroups() async {
+    final Uri url = Uri.parse("$BaseUrl/Group/GetAll");
     try {
-      http.Response response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ${Userdata["token"]}',
+        },
+      );
 
-      if (response.statusCode == 200) {
-        print('Response: ${response.body}');
-      } else {
-        print('Failed with status code: ${response.statusCode}');
-      }
+      return response;
     } catch (e) {
-      print('Error: $e');
+      print("Error: $e");
+      rethrow;
     }
   }
-  Future postGroupAdd(String name) async {
-    Uri url = Uri.parse("${BaseUrl}Group/addgroup");
-    Map<String, String> requestBody = {
-      "name": name,
-    };
+
+  Future<http.Response> addGroup(String name,UserModel teacher) async {
+    Uri url = Uri.parse("$BaseUrl/Group/Add");
+
+      Map<String, dynamic> requestBody= {
+        "name": name,
+        "TeacherId":teacher.id,
+      };
 
     try {
       http.Response response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ${Userdata["token"]}',
+        },
         body: jsonEncode(requestBody),
       );
-
-      if (response.statusCode == 200) {
-        print('Response: ${response.body}');
-      } else {
-        print('Failed with status code: ${response.statusCode}');
-      }
+      print(response.statusCode);
+      return response;
     } catch (e) {
       print('Error: $e');
+      rethrow;
     }
   }
 
-
-  // Future postGroupUpdate(int id,String name) async {
-  //   Uri url = Uri.parse("${BaseUrl}Group/updategroup/$id");
-  //   Map<String, String> requestBody = {
-  //     "name": name,
-  //   };
-  //   try {
-  //     http.Response response = await http.post(
-  //       url,
-  //       headers: {"Content-Type": "application/json"},
-  //       body: jsonEncode(requestBody),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       print('Response: ${response.body}');
-  //     } else {
-  //       print('Failed with status code: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
+  Future<http.Response> updateGroup(int id, String? name,UserModel? teacher) async {
+    Uri url = Uri.parse("$BaseUrl/Group/Update/$id");
+    Map<String, dynamic> requestBody= {
+      if (name!.isNotEmpty) "name" : name,
+        if (teacher != null) "TeacherId": teacher.id,
+      };
 
 
-  Future postGroupDelete(int id) async {
-    Uri url = Uri.parse("${BaseUrl}Group/deletegroup/$id");
+
     try {
-      http.Response response = await http.post(
-        headers: {"Content-Type": "application/json"},
+      http.Response response = await http.put(
         url,
-      );
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ${Userdata["token"]}',
+        },
 
-      if (response.statusCode == 200) {
-        print('Response: ${response.body}');
-      } else {
-        print('Failed with status code: ${response.statusCode}');
-      }
+        body: jsonEncode(requestBody),
+      );
+      return response;
     } catch (e) {
       print('Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<http.Response> deleteGroup(int id) async {
+    Uri url = Uri.parse("$BaseUrl/Group/Delete/$id");
+    try {
+      http.Response response = await http.delete(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ${Userdata["token"]}',
+        },
+      );
+
+      return response;
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
     }
   }
 }
 
-
-class studentService {
-  String BaseUrl = 'http://welads.runasp.net/api/';
+class StudentService {
+  String BaseUrl = 'http://welads.runasp.net/classtrack/';
 
   Future getAllStudents() async {
     Uri url = Uri.parse("${BaseUrl}Student/GetAll");
@@ -287,17 +290,16 @@ class studentService {
   }
 }
 
-class usersService {
-  String BaseUrl = 'http://welads.runasp.net/api/';
-
+class AuthService {
+  String BaseUrl = 'http://welads.runasp.net/classtrack';
   Future logout() async {
-    Uri url = Uri.parse("${BaseUrl}Auth/logout");
+    Uri url = Uri.parse("${BaseUrl}/Auth/logout");
     try {
       http.Response response = await http.get(
         url,
         headers: {
           "Content-Type": "application/json",
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFkbWluIiwibmFtZWlkIjoiZDEyM2U0ODAtNDdmNS00N2RmLTlhNWMtZTIyMjRlNWI2NDNkIiwibmJmIjoxNzIzOTMzNTE1LCJleHAiOjE3MjM5NDA3MTUsImlhdCI6MTcyMzkzMzUxNSwiaXNzIjoiV2VsYWRTIiwiYXVkIjoiaHR0cDovL1dlbGFkUy5ydW5hc3AubmV0LyJ9.waQJnaLAWBOfzpiyfXqHdX6qnAjhWaIuatfKaPXo5V0',
+          'Authorization': 'Bearer ${Userdata["token"]}',
         },
       );
 
@@ -311,8 +313,8 @@ class usersService {
     }
   }
 
-  Future login(String username,String password) async {
-    Uri url = Uri.parse("${BaseUrl}Auth/login");
+  Future<http.Response> login (String username,String password) async {
+    Uri url = Uri.parse("${BaseUrl}/Auth/login");
     Map<String, String> requestBody = {
       "userName": username,
       "password": password
@@ -325,57 +327,46 @@ class usersService {
         body: jsonEncode(requestBody),
       );
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> hasExpired = JwtDecoder.decode(response.body);
+        return response;
+    } catch (e) {
+      print("error: $e");
+      rethrow;
+    }
+  }
+}
 
-        print(hasExpired);
-      } else {
-        print('Failed with status code: ${response.statusCode}');
-      }
+
+class UsersService {
+  String BaseUrl = 'http://welads.runasp.net/classtrack';
+  Future getAll() async {
+    Uri url = Uri.parse("${BaseUrl}/User/GetAll");
+    try {
+      http.Response response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ${Userdata["token"]}',
+        },
+      );
+      return response;
     } catch (e) {
       print('Error: $e');
     }
   }
 
+  Future<http.Response> deleteUser (String username) async {
+    Uri url = Uri.parse("${BaseUrl}/User/Delete/$username");
 
-  // Future postGroupUpdate(int id,String name) async {
-  //   Uri url = Uri.parse("${BaseUrl}Group/updategroup/$id");
-  //   Map<String, String> requestBody = {
-  //     "name": name,
-  //   };
-  //   try {
-  //     http.Response response = await http.post(
-  //       url,
-  //       headers: {"Content-Type": "application/json"},
-  //       body: jsonEncode(requestBody),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       print('Response: ${response.body}');
-  //     } else {
-  //       print('Failed with status code: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
-
-
-  Future postGroupDelete(int id) async {
-    Uri url = Uri.parse("${BaseUrl}Group/deletegroup/$id");
     try {
-      http.Response response = await http.post(
-        headers: {"Content-Type": "application/json"},
+      http.Response response = await http.delete(
         url,
+        headers: {"Content-Type": "application/json"},
       );
 
-      if (response.statusCode == 200) {
-        print('Response: ${response.body}');
-      } else {
-        print('Failed with status code: ${response.statusCode}');
-      }
+      return response;
     } catch (e) {
-      print('Error: $e');
+      print("error: $e");
+      rethrow;
     }
   }
 }

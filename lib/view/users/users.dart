@@ -1,5 +1,10 @@
+import 'package:awladsanaad_2/model/user_model.dart';
+import 'package:awladsanaad_2/view/users/user_cubit.dart';
+import 'package:awladsanaad_2/view/users/user_state.dart';
 import 'package:flutter/material.dart';
-import '../custom/colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../custom/colors.dart';
+import '../../custom/data.dart';
 
 class Users extends StatefulWidget {
   const Users({super.key});
@@ -9,22 +14,7 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  List<String> users = [
-    "عامر دياب",
-    "احمد ونس",
-    "زكريا حجاج",
-  ];
-
-  List<String> role = [
-    "1",
-    "2",
-    "2",
-  ];
-  List<String> group = [
-    "-",
-    "عمر بن الخطاب",
-    "عثمان بن عفان",
-  ];
+  
   void _showAddDialog() {
     String name = "";
     showDialog(
@@ -41,56 +31,7 @@ class _UsersState extends State<Users> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                      hintText: "الاسم",
-                      helperStyle: TextStyle(
-                      )
-                  ),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                      hintText: "الوظيفة",
-                      helperStyle: TextStyle(
-                      )
-                  ),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                      hintText: "المجموعة",
-                      helperStyle: TextStyle(
-                      )
-                  ),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                      hintText: "اسم المستخدم",
-                      helperStyle: TextStyle(
-                      )
-                  ),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                      hintText: "كلمة المرور",
-                      helperStyle: TextStyle(
-                      )
-                  ),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
+
               ],
             ),
             actions: [
@@ -106,7 +47,7 @@ class _UsersState extends State<Users> {
                 ),
                 onPressed: () {
                   if (name.isNotEmpty) {
-                    users.add(name);
+                    // users.add(name);
                     Navigator.of(context).pop();
                     setState(() {});
                   } else {
@@ -142,9 +83,9 @@ class _UsersState extends State<Users> {
   }
 
   void deleteStudent(int id) {
-    users.removeAt(id);
-    group.removeAt(id);
-    role.removeAt(id);
+    // users.removeAt(id);
+    // group.removeAt(id);
+    // role.removeAt(id);
     setState(() {});
   }
   void _showDeleteDialog(int id) {
@@ -315,100 +256,196 @@ class _UsersState extends State<Users> {
 
   @override
   Widget build(BuildContext context) {
-    double screenW = MediaQuery.of(context).size.width;
-    double screenH = MediaQuery.of(context).size.height;
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          shadowColor: mainColor,
-          elevation: 10,
-          backgroundColor: mainColor,
-          leading: IconButton(onPressed: (){
-            Navigator.pop(context);
-          }, icon: Icon(Icons.arrow_back),color: whiteColor,),
-          title: Text(
-            'المستخدمين',
-            style: TextStyle(
-              color: whiteColor,
+    double widthScreen = MediaQuery.of(context).size.width;
+    double heightScreen = MediaQuery.of(context).size.height;
+    return BlocProvider(
+  create: (context) => UserCubit()..fetchUsers(),
+  child: BlocConsumer<UserCubit, UserState>(
+  listener: (context, state) {
+    if (state is UserFailure) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(state.error)),
+      );
+    }
+  },
+  builder: (context, state) {
+    if(state is UserSuccess){
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
+            shadowColor: mainColor,
+            elevation: 10,
+            backgroundColor: mainColor,
+            leading: IconButton(onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(Icons.arrow_back),color: whiteColor,),
+            title: Text(
+              'المستخدمين',
+              style: TextStyle(
+                color: whiteColor,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add),
+                color: whiteColor,
+                onPressed: _showAddDialog,
+              ),
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.only(right: 20.0,left: 20,top: 10),
+            child: ListView.builder(
+              itemCount: state.users.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: UsersWidget(users: state.users, index: index, width: widthScreen,height: heightScreen,)
+                );
+              },
             ),
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.add),
-              color: whiteColor,
-              onPressed: _showAddDialog,
+        ),
+      );
+    }
+    else {
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
+            shadowColor: mainColor,
+            elevation: 10,
+            backgroundColor: mainColor,
+            leading: IconButton(onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(Icons.arrow_back),color: whiteColor,),
+            title: Text(
+              'المستخدمين',
+              style: TextStyle(
+                color: whiteColor,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add),
+                color: whiteColor,
+                onPressed: _showAddDialog,
+              ),
+            ],
+          ),
+          body: SizedBox(
+            height: heightScreen,
+            width: widthScreen,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+        ),
+      );
+    }
+  },
+),
+);
+  }
+}
+
+
+class UsersWidget extends StatelessWidget {
+  UsersWidget({
+    super.key,
+    required this.users,
+    required this.index,
+    required this.width,
+    required this.height,
+  });
+
+  final List<UserModel> users;
+  final int index;
+  final double width;
+  final double height;
+  bool vis = Userdata["role"] == "Admin";
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: mainColor,
+      shadowColor: mainColor,
+      elevation: 8,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0, top: 10,bottom: 10),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: width / 6.5,
+                  child: CircleAvatar(
+                    child: Text(
+                      "${index + 1}",
+                      style: const TextStyle(color: mainColor),
+                    ),
+                    backgroundColor: whiteColor,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        users[index].name,
+                        overflow:TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                      Text(
+                        users[index].userName,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      SizedBox(
+                        height: height/40,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: users[index].groups.length,
+                          itemBuilder: (context, ind) {
+                            return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(users[index].groups[ind]!,
+                                  style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),)
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: width /8,
+                  child: CircleAvatar(
+                    backgroundColor: whiteColor,
+                    child: IconButton(
+                      onPressed: () {
+                        // const Home()._showUpdateDialog(groups[index].id, context);
+                      },
+                      icon: const Icon(Icons.edit),
+                      color: mainColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.only(right: 20.0,left: 20,top: 10),
-          child: ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onLongPress: (){
-                            _showDeleteDialog(index);
-                          },
-                          child: Text(
-                            users[index],
-                            style: TextStyle(
-                              color: mainColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              role[index]=="1" ? "مسؤول": "مدرس",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: screenW/15,),
-                            Container(
-                              width: screenW/2.5,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      group[index],
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  SizedBox(width: 5,),
-                                  IconButton(onPressed: (){
-                                    _showEditDialog(users[index]);
-                                  }, icon: Icon(Icons.edit),),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Divider(color: mainColor,),
-                  ],
-                ),
-              );
-            },
-          ),
         ),
       ),
     );
