@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:awladsanaad_2/custom/custom_text_form_field.dart';
-import 'package:awladsanaad_2/view/table.dart';
+import 'package:awladsanaad_2/view/table/table.dart';
+import 'package:awladsanaad_2/view/users/users.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../custom/colors.dart';
@@ -8,8 +9,6 @@ import '../../custom/data.dart';
 import '../../model/group_model.dart';
 import '../../model/user_model.dart';
 import '../../services.dart';
-import '../../test.dart';
-import '../settings.dart';
 import 'home_cubit.dart';
 import 'home_state.dart';
 
@@ -20,12 +19,15 @@ class Home extends StatelessWidget {
     await context.read<HomeCubit>().fetchGroups();
   }
 
-  void _showAddDialog(BuildContext con) async {
+  void _showAddDialog(BuildContext con, double width) async {
     final TextEditingController groupNameController = TextEditingController();
     UserModel? selectedValue;
     final response = await UsersService().getAll();
     final List<dynamic> jsonResponse = json.decode(response.body);
-    final users = jsonResponse.map((data) => UserModel.fromJson(data)).toList();
+    final users = jsonResponse
+        .where(((data) => data['role'] != "Admin"))
+        .map((data) => UserModel.fromJson(data))
+        .toList();
 
     showDialog(
       context: con,
@@ -35,9 +37,13 @@ class Home extends StatelessWidget {
           child: AlertDialog(
             backgroundColor: whiteColor,
             actionsAlignment: MainAxisAlignment.center,
-            title: const Text(
+            title: Text(
               "إضافة مجموعة",
               textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: width / 23,
+                color: mainColor,
+              ),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -50,12 +56,18 @@ class Home extends StatelessWidget {
                 DropdownButtonFormField<UserModel>(
                   dropdownColor: whiteColor,
                   value: selectedValue,
-                  hint: const Text('اختر خياراً'),
+                  hint: Text(
+                    'اختر خياراً',
+                    style: TextStyle(fontSize: width / 25),
+                  ),
                   items:
                       users.map<DropdownMenuItem<UserModel>>((UserModel value) {
                     return DropdownMenuItem<UserModel>(
                       value: value,
-                      child: Text(value.name),
+                      child: Text(
+                        value.name,
+                        style: TextStyle(fontSize: width / 28),
+                      ),
                     );
                   }).toList(),
                   onChanged: (UserModel? newValue) {
@@ -90,11 +102,9 @@ class Home extends StatelessWidget {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(mainColor),
                 ),
-                child: const Text(
+                child: Text(
                   "حفظ",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: width / 28),
                 ),
                 onPressed: () {
                   if (groupNameController.text.isNotEmpty &&
@@ -118,10 +128,11 @@ class Home extends StatelessWidget {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(whiteColor),
                 ),
-                child: const Text(
+                child: Text(
                   "لا",
                   style: TextStyle(
                     color: mainColor,
+                    fontSize: width / 28,
                   ),
                 ),
                 onPressed: () {
@@ -135,7 +146,7 @@ class Home extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(int id, BuildContext con) {
+  void _showDeleteDialog(int id, BuildContext con, double width) {
     showDialog(
       context: con,
       builder: (BuildContext context) {
@@ -144,20 +155,22 @@ class Home extends StatelessWidget {
           child: AlertDialog(
             backgroundColor: whiteColor,
             actionsAlignment: MainAxisAlignment.center,
-            title: const Text(
+            title: Text(
               "حذف المجموعة",
               textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: width / 23,
+                color: mainColor,
+              ),
             ),
             actions: [
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(mainColor),
                 ),
-                child: const Text(
+                child: Text(
                   "حذف",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: width / 28),
                 ),
                 onPressed: () {
                   con.read<HomeCubit>().deleteGroup(id);
@@ -168,11 +181,9 @@ class Home extends StatelessWidget {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(whiteColor),
                 ),
-                child: const Text(
+                child: Text(
                   "لا",
-                  style: TextStyle(
-                    color: mainColor,
-                  ),
+                  style: TextStyle(color: mainColor, fontSize: width / 28),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -185,12 +196,15 @@ class Home extends StatelessWidget {
     );
   }
 
-  void _showUpdateDialog(int id, BuildContext con) async {
+  void _showUpdateDialog(int id, BuildContext con, double width) async {
     final TextEditingController groupNameController = TextEditingController();
     UserModel? selectedValue;
     final response = await UsersService().getAll();
     final List<dynamic> jsonResponse = json.decode(response.body);
-    final users = jsonResponse.map((data) => UserModel.fromJson(data)).toList();
+    final users = jsonResponse
+        .where(((data) => data['role'] != "Admin"))
+        .map((data) => UserModel.fromJson(data))
+        .toList();
 
     showDialog(
       context: con,
@@ -200,9 +214,13 @@ class Home extends StatelessWidget {
           child: AlertDialog(
             backgroundColor: whiteColor,
             actionsAlignment: MainAxisAlignment.center,
-            title: const Text(
+            title: Text(
               "تعديل المجموعة",
               textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: width / 23,
+                color: mainColor,
+              ),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -213,13 +231,22 @@ class Home extends StatelessWidget {
                 ),
                 const SizedBox(height: 16.0),
                 DropdownButtonFormField(
+                  dropdownColor: whiteColor,
                   value: selectedValue,
-                  hint: const Text('اختر خياراً'),
+                  hint: Text(
+                    'اختر خياراً',
+                    style: TextStyle(
+                      fontSize: width / 25,
+                    ),
+                  ),
                   items:
                       users.map<DropdownMenuItem<UserModel>>((UserModel value) {
                     return DropdownMenuItem<UserModel>(
                       value: value,
-                      child: Text(value.name),
+                      child: Text(
+                        value.name,
+                        style: TextStyle(fontSize: width / 28),
+                      ),
                     );
                   }).toList(),
                   onChanged: (UserModel? newValue) {
@@ -254,19 +281,18 @@ class Home extends StatelessWidget {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(mainColor),
                 ),
-                child: const Text(
+                child: Text(
                   "تعديل",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: width / 28),
                 ),
                 onPressed: () {
                   print(groupNameController.text);
-                  if (groupNameController.text.isNotEmpty || selectedValue!=null) {
-                      con.read<HomeCubit>().updateGroup(id, groupNameController.text, selectedValue);
+                  if (groupNameController.text.isNotEmpty ||
+                      selectedValue != null) {
+                    con.read<HomeCubit>().updateGroup(
+                        id, groupNameController.text, selectedValue);
                     Navigator.of(context).pop();
                   } else {
-
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text(
@@ -281,11 +307,9 @@ class Home extends StatelessWidget {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(whiteColor),
                 ),
-                child: const Text(
+                child: Text(
                   "لا",
-                  style: TextStyle(
-                    color: mainColor,
-                  ),
+                  style: TextStyle(color: mainColor, fontSize: width / 28),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -300,16 +324,17 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double widthScreen = MediaQuery.of(context).size.width;
-    double heightScreen = MediaQuery.of(context).size.height;
+    double screenW = MediaQuery.of(context).size.width;
+    double screenH = MediaQuery.of(context).size.height;
     return BlocProvider(
       create: (context) => HomeCubit()..fetchGroups(),
       child: BlocConsumer<HomeCubit, HomeState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is HomeFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.error)),
             );
+            await context.read<HomeCubit>().fetchGroups();
           }
         },
         builder: (context, state) {
@@ -322,41 +347,32 @@ class Home extends StatelessWidget {
                   shadowColor: mainColor,
                   elevation: 10,
                   backgroundColor: mainColor,
-                  title: const Text(
+                  title: Text(
                     'المجموعات',
                     style: TextStyle(
-                      color: whiteColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: screenW / 20),
                   ),
+                  leading: Userdata["role"] == "Admin"
+                      ? IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                          color: whiteColor,
+                        )
+                      : null,
                   actions: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Settings()),
-                        );
-                      },
-                      icon: const Icon(Icons.settings),
-                      color: whiteColor,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const testt()));
-                      },
-                      icon: const Icon(Icons.g_translate),
-                      color: whiteColor,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      color: whiteColor,
-                      onPressed: () {
-                        _showAddDialog(context);
-                      },
+                    Visibility(
+                      visible: Userdata["role"] == "Admin",
+                      child: IconButton(
+                        icon: const Icon(Icons.add),
+                        color: whiteColor,
+                        onPressed: () {
+                          _showAddDialog(context, screenW);
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -370,10 +386,11 @@ class Home extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onLongPress: () {
-                            _showDeleteDialog(state.groups[index].id, context);
+                            _showDeleteDialog(
+                                state.groups[index].id, context, screenW);
                           },
                           child: GroupWidget(
-                            width: widthScreen,
+                            width: screenW,
                             groups: state.groups,
                             index: index,
                           ),
@@ -393,52 +410,24 @@ class Home extends StatelessWidget {
                   shadowColor: mainColor,
                   elevation: 10,
                   backgroundColor: mainColor,
-                  title: const Text(
+                  leading: Userdata["role"] == "Admin"
+                      ? IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                          color: whiteColor,
+                        )
+                      : null,
+                  title: Text(
                     'المجموعات',
                     style: TextStyle(
-                      color: whiteColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Settings()),
-                        );
-                      },
-                      icon: const Icon(Icons.settings),
-                      color: whiteColor,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const testt()));
-                      },
-                      icon: const Icon(Icons.g_translate),
-                      color: whiteColor,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      color: whiteColor,
-                      onPressed: () async {
-                        _showAddDialog(context);
-                      },
-                    ),
-                  ],
-                ),
-                body: RefreshIndicator(
-                  onRefresh: () => _refreshData(context),
-                  child: SizedBox(
-                    height: heightScreen,
-                    width: widthScreen,
-                    child: const Center(child: CircularProgressIndicator()),
+                        color: whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: screenW / 20),
                   ),
                 ),
+                body: const Center(child: CircularProgressIndicator()),
               ),
             );
           }
@@ -526,8 +515,8 @@ class GroupWidget extends StatelessWidget {
                               backgroundColor: whiteColor,
                               child: IconButton(
                                 onPressed: () {
-                                  const Home()._showUpdateDialog(
-                                      groups[index].id, context);
+                                  Home()._showUpdateDialog(
+                                      groups[index].id, context, width);
                                 },
                                 icon: const Icon(Icons.edit),
                                 color: mainColor,
@@ -544,7 +533,9 @@ class GroupWidget extends StatelessWidget {
                                 MaterialPageRoute(
                                   builder: (context) => Directionality(
                                     textDirection: TextDirection.rtl,
-                                    child: table(),
+                                    child: table(
+                                      groupId: groups[index].id,
+                                    ),
                                   ),
                                 ),
                               );

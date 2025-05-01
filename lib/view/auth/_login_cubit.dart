@@ -16,7 +16,8 @@ class LoginCubit extends Cubit<Loginstate> {
       Userdata = JwtDecoder.decode(response.body);
       Userdata["token"]=response.body;
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', response.body);
+      await prefs.setString('Username', username);
+      await prefs.setString('Password', password);
         emit(LoginSuccess());
       } else {
         emit(LoginFailure("Invalid credentials"));

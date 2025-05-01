@@ -10,7 +10,8 @@ class Group {
     return Group(
       id: json['id'],
       name: json['name'],
-      teacherName: json['teacherName']??"", studentsCount: json['studentsCount'],
+      teacherName: json['teacherName']??"",
+      studentsCount: json['studentsCount']??0,
     );
   }
 }
